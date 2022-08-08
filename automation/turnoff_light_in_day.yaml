@@ -1,0 +1,61 @@
+blueprint:
+  name: Turn off light during day
+  description: Turn off light during day
+  domain: automation
+  source_url: https://github.com/theundefined/ha-blueprints/automation/turnoff_light_in_day.yaml
+  input:
+    light_target:
+      name: Light
+      selector:
+        target:
+          entity:
+            domain: light
+    hours:
+      name: Wait time in hours
+      description: Hours until ligh is off
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 4
+          unit_of_measurement: hours
+    minutes:
+      name: Wait time in minutes
+      description: Minutes until ligh is off
+      default: 1
+      selector:
+        number:
+          min: 0
+          max: 60
+          unit_of_measurement: minutes
+    seconds:
+      name: Wait time in seconds
+      description: Seconds until ligh is off
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 60
+          unit_of_measurement: seconds
+
+mode: restart
+max_exceeded: silent
+
+trigger:
+  platform: state
+  entity_id: !input light_target
+  to: "on"
+  for:
+    hours: !input hours
+    minutes: !input minutes
+    seconds: !input seconds
+
+condition:
+  - condition: sun
+    before: sunset
+    after: sunrise
+
+action:
+  - service: light.turn_off
+    target: !input light_target
+      to: "off"
